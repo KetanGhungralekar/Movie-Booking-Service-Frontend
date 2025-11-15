@@ -94,6 +94,7 @@ useEffect(() => {
   getShows()
 }, [id])
 
+
 // helper to format show start time to a friendlier label
 const formatShowTime = (iso) => {
   if (!iso) return 'TBA'
