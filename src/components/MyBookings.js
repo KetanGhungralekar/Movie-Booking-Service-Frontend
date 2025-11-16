@@ -16,7 +16,7 @@ function MyBookings() {
     if (!token) return
     const fetchBookings = async () => {
       try {
-        const res = await fetch('https://book-my-show-backend-arasuramanan.onrender.com/users/bookings', {
+        const res = await fetch('/users/bookings', {
           headers: { Authorization: token },
         })
         if (!res.ok) return

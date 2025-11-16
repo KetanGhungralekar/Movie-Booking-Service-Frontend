@@ -15,17 +15,15 @@ function Bookings() {
     const token = localStorage.getItem("Authorization")
 
     const getMovie = () => {
-        fetch(`https://book-my-show-backend-arasuramanan.onrender.com/bookmyshow/movies/${id}`,
-        {
-            method:"GET",
-            headers:{
-              Authorization:localStorage.getItem("Authorization")
-              
-          }
-    })
-        .then((data) => data.json())
-        .then((mv) => setMovie(mv))
+      fetch(`/movies/${id}`, {
+        method: "GET",
+        headers: {
+          Authorization: localStorage.getItem("Authorization") || '',
         }
+      })
+      .then((data) => data.json())
+      .then((mv) => setMovie(mv))
+    }
         useEffect(() => {getMovie()},[id])
 
         useEffect(() => {

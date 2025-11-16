@@ -9,14 +9,14 @@ import * as yup from "yup"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import NavBar from './NavBar';
+import { apiUrl, AUTH_SIGNUP } from './global/connect';
 import bms from "../image/bms.png";
 
 
 const formValidationSchema = yup.object({
-  fullName:yup.string().required(),
+  fullname:yup.string().required(),
   email:yup.string().required(),
   password:yup.string().required().min(5),
-  role:yup.string().required()
 })
 
 function Signup() {
@@ -24,8 +24,7 @@ function Signup() {
     let navigate = useNavigate()
     const {handleSubmit, values, handleChange,handleBlur,touched, errors} = useFormik({
       initialValues:{
-        role:'',
-        fullName:'',
+        fullname:'',
         email:'',
         password:'',
       },
@@ -36,28 +35,30 @@ function Signup() {
   
   })
     let addUser = (newList) => {
-          fetch("https://book-my-show-backend-arasuramanan.onrender.com/users/signup",{
-            method:"POST",
-            body: JSON.stringify(newList),
-            headers: {
-              "Content-Type" : "application/json",
-          },
-          })
-              .then((data) => data.json())
-              .then(() => toast.success('Account Created Successfully', {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-                }))
-                .then(() =>setTimeout(() =>{
-                  navigate('/users/login')
-                },3000))
-  
+      fetch(apiUrl(AUTH_SIGNUP),{
+        method:"POST",
+        body: JSON.stringify({
+          fullname: newList.fullname,
+          email: newList.email,
+          password: newList.password,
+        }),
+        headers: {
+          "Content-Type" : "application/json",
+        },
+      })
+      .then((res) => (res.ok ? res.json() : res.json().then((d)=>Promise.reject(d))))
+      .then(() => toast.success('Account Created Successfully', {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      }))
+      .then(() => setTimeout(() => navigate('/users/login'), 800))
+      .catch((err) => toast.error(err?.message || 'Signup failed'))
     }
 
   return <>
@@ -80,30 +81,19 @@ function Signup() {
         <form  onSubmit = {handleSubmit}>
         <Box sx={{display:"flex",flexDirection:"column",justifyContent:"center",gap:3}}>
 
-        <TextField
-         id="outlined-basic"
-          label="Role(Admin/User)"
-          variant="outlined"
-          name="role"
-          value={values.role}
-          onBlur={handleBlur}
-          onChange={handleChange}
-          type="text"
-          error = {touched.role && errors.role}
-           helperText =  {touched.role && errors.role ? errors.role :null}
-           />
+        {/* role removed: signup creates user accounts only */}
 
         <TextField
          id="outlined-basic"
           label="Full Name"
           variant="outlined"
-          name="fullName"
-          value={values.fullName}
+          name="fullname"
+          value={values.fullname}
           onBlur={handleBlur}
           onChange={handleChange}
           type="text"
-          error = {touched.fullName && errors.fullName}
-           helperText =  {touched.fullName && errors.fullName ? errors.fullName :null}
+          error = {touched.fullname && errors.fullname}
+           helperText =  {touched.fullname && errors.fullname ? errors.fullname :null}
            />
 
         <TextField

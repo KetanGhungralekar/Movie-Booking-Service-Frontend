@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getToken } from './auth';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
@@ -72,7 +73,11 @@ function MovieCard({ movie, showBook = true }) {
         transition: 'transform 180ms ease, box-shadow 180ms ease',
         '&:hover': { transform: 'translateY(-6px)', boxShadow: '0 12px 30px rgba(15,15,15,0.18)' }
       }}
-      onClick={() => navigate(`/bookmyshow/movies/${movie.id}`)}
+      onClick={() => {
+        const token = getToken()
+        if (!token) return navigate('/users/login')
+        navigate(`/bookmyshow/movies/${movie.id}`)
+      }}
       aria-label={`Open ${movie.title}`}
     >
       <Box sx={{ position: 'relative', height: 360, width: '100%' }}>
@@ -126,7 +131,7 @@ function MovieCard({ movie, showBook = true }) {
               variant="contained"
               color="error"
               size="small"
-              onClick={(e) => { e.stopPropagation(); navigate(`/bookmyshow/movies/${movie.id}`); }}
+              onClick={(e) => { e.stopPropagation(); const token = getToken(); if (!token) return navigate('/users/login'); navigate(`/bookmyshow/movies/${movie.id}`); }}
               sx={{ textTransform: 'none', background: 'linear-gradient(90deg,#ff3a44,#f8446b)' }}
             >
               Book Now

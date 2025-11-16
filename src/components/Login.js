@@ -9,13 +9,14 @@ import * as yup from "yup"
 import NavBar from './NavBar';
 import { ToastContainer, toast } from 'react-toastify';
 import { MyContext } from "../components/Context";
+import { apiUrl, AUTH_SIGNIN, USERS_ME } from './global/connect';
+import { setToken } from './auth';
 import bms from "../image/bms.png";
 
 
 
 
 const formValidationSchema = yup.object({
-  role:yup.string().required(),
     email:yup.string().required(),
     password:yup.string().required().min(5),
 })
@@ -27,7 +28,6 @@ navigate=useNavigate();
 
 const {handleSubmit, values, handleChange,handleBlur,touched, errors} = useFormik({
     initialValues:{
-      role:'',
       email:'',
       password:'',
     },
@@ -38,43 +38,48 @@ const {handleSubmit, values, handleChange,handleBlur,touched, errors} = useFormi
 })
 
 let addList = (loginUser) => {
-    fetch("https://book-my-show-backend-arasuramanan.onrender.com/users/login",{
-        method:"POST",
-        body: JSON.stringify(loginUser),
-        headers: {
-          "Content-Type" : "application/json",
-      },
-      })
-          .then((data) => data.json())
-          .then(data => {
-            setUser(data.userDetail)
-          if(data){
-            localStorage.setItem("Authorization", data.token)
-            localStorage.setItem("email", data.userDetail.email)
-            if (true || data.msg === `Login Successfully`) {
-              if(loginUser.role === 'Admin'){
-                setTimeout(() =>{
-                  navigate('/bookmyshow/movies/admin')
-                },3000)
-              }else if(true || loginUser.role === 'User'){
-                setTimeout(() =>{
-                  navigate('/bookmyshow/movies')
-                },3000)
-              }else{
-                toast.error('Invalid Credentials', {
-                  position: "top-center",
-                  autoClose: 5000,
-                  hideProgressBar: false,
-                  closeOnClick: true,
-                  pauseOnHover: true,
-                  draggable: true,
-                  progress: undefined,
-                  theme: "light",
-                  })
-              }
-            }
-          }})
-      .catch(err => console.log(err))
+  fetch(apiUrl(AUTH_SIGNIN), {
+    method: "POST",
+    body: JSON.stringify({
+      email: loginUser.email,
+      password: loginUser.password,
+    }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+
+    // console.log(loginUser)
+    .then((res) => (res.ok ? res.json() : res.json().then((d) => Promise.reject(d))))
+    .then((data) => {
+      // AuthResponse: { token, role, message }
+      if (data?.token) {
+        console.log(data.token)
+        // Store with Bearer prefix so existing fetches work
+        setToken(`Bearer ${data.token}`);
+        if (data?.role) localStorage.setItem("role", data.role);
+        navigate('/bookmyshow/movies');
+
+        // // Load current user profile
+        // return fetch(apiUrl(USERS_ME), {
+        //   method: 'GET',
+        //   headers: { Authorization: (typeof localStorage !== 'undefined' ? localStorage.getItem('Authorization') : null) || '' },
+        // })
+        //   .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+        //   .then((userDetail) => {
+        //     setUser(userDetail);
+        //     // Optional: store email for legacy usages
+        //     if (userDetail?.email) localStorage.setItem('email', userDetail.email);
+        //     // Navigate to movies page for all users
+        //     navigate('/bookmyshow/movies');
+        //   });
+      }
+      return Promise.reject({ message: data?.message || 'Login failed' });
+    })
+    .catch((err) => {
+      const msg = err?.message || 'Unable to login';
+      toast.error(msg);
+    });
 }
 
   return <>
@@ -96,18 +101,7 @@ let addList = (loginUser) => {
         <form  onSubmit = {handleSubmit}>
         <Box sx={{display:"flex",flexDirection:"column",justifyContent:"center",gap:3}}>
 
-        <TextField 
-        id="outlined-basic" 
-        label="Enter Your Role" 
-        variant="outlined" 
-        name="role"
-        value={values.role}
-        onBlur={handleBlur}
-        onChange={handleChange}
-        type="text"
-        error = {touched.role && errors.role}
-         helperText =  {touched.role && errors.role ? errors.role :null}
-        />
+        {/* role removed: user-only app */}
 
         <TextField 
         id="outlined-basic" 

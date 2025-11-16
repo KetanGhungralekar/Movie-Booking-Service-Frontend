@@ -11,6 +11,7 @@ import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import { MyContext } from "../components/Context";
+import { clearToken, getToken } from './auth';
 import bms from "../image/bms.png";
 
 
@@ -21,12 +22,12 @@ function NavBar() {
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);
 
-  const token = localStorage.getItem("Authorization")
+  const token = getToken()
 
  let navigate = useNavigate();
 
  let logOut = () => {
-  localStorage.removeItem("Authorization")
+  clearToken()
   localStorage.removeItem("email")
   navigate('/users/login')
  }
@@ -101,12 +102,9 @@ function NavBar() {
               }}
             >
                 <MenuItem sx={{display:'flex',flexDirection:{xs:'column'},gap:2}} onClick={handleCloseNavMenu}>
-                {
-                  token ? <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/bookmyshow/movies')}>Movies</Typography> : null
-                }
-                {
-                  token ?  <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/bookmyshow/movies/query')}>Queries</Typography> : null
-                }
+                {/* Movies visible always */}
+                <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/bookmyshow/movies')}>Movies</Typography>
+                {token ?  <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/bookmyshow/movies/query')}>Queries</Typography> : null}
 
                 {
                   token ? null :  <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/users/signup')}>Signup</Typography>
@@ -116,9 +114,7 @@ function NavBar() {
                     :
                     <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/users/login')}>Login</Typography>
                   }
-                  {
-                    token && <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={logOut}>{user?.fullName}</Typography>
-                  }
+                  {token && <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={logOut}>{user?.fullname || user?.fullName || user?.email}</Typography>}
                   
                 </MenuItem>
               
@@ -160,12 +156,9 @@ function NavBar() {
                 onClick={handleCloseNavMenu}
                 sx={{ my: 2, color: 'white',display: { xs: 'none', md: 'flex' },flexDirection:{xs:'none',md:'row'},gap:4 }}
               >
-                {
-                  token ? <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/bookmyshow/movies')}>Movies</Typography> : null
-                }
-                {
-                  token ?  <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/bookmyshow/movies/query')}>Queries</Typography> : null
-                }
+                {/* Movies visible always */}
+                <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/bookmyshow/movies')}>Movies</Typography>
+                {token ?  <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/bookmyshow/movies/query')}>Queries</Typography> : null}
 
                 {
                   token ? null :  <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/users/signup')}>Signup</Typography>
@@ -176,9 +169,7 @@ function NavBar() {
                     :
                     <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/users/login')}>Login</Typography>
                   }
-                                    {
-                    token && <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={logOut}>{user?.fullName}</Typography>
-                  }
+                  {token && <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={logOut}>{user?.fullname || user?.fullName || user?.email}</Typography>}
               </Button>
           </Box>
         </Toolbar>

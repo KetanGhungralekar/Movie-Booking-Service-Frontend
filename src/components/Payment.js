@@ -134,7 +134,7 @@ function Payment() {
             <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
               <Button variant="outlined" onClick={() => navigate(-1)} disabled={loading} sx={{ borderColor: '#bbb', color: '#222', px: 3 }}>Back</Button>
               <Button variant="contained" onClick={movieTicket} disabled={loading} sx={{ backgroundColor: '#f84464', boxShadow: '0 6px 18px rgba(248,68,100,0.22)', px: 3 }}>
-                {loading ? 'Processing...' : 'Make Payment'}
+                {loading ? 'Processing...' : '  yment'}
               </Button>
             </Box>
           </Grid>

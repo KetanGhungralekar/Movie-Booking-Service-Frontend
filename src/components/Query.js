@@ -31,14 +31,15 @@ function Query() {
     }
 
 })
+  let navigate = useNavigate()
+
   let addUser = (queryList) => {
-        fetch("https://book-my-show-backend-arasuramanan.onrender.com/bookmyshow/movies/queries",{
+        // Assuming query endpoint belongs to movie service
+        fetch("/movies/queries",{
           method:"POST",
           body: JSON.stringify(queryList),
           headers: {
-            "Content-Type" : "application/json",           
-              Authorization:localStorage.getItem("Authorization")
-
+            "Content-Type" : "application/json"
         },
         })
             .then((data) => data.json())
@@ -57,8 +58,6 @@ function Query() {
             .then(() => navigate('/bookmyshow/movies'))
   }
 
-  let navigate = useNavigate()
-
   return <>
   <NavBar/>
   <Box sx={{backgroundColor:"#f2f2f2",height:{xs:"93.7vh",md:"91.8vh"},display:"flex",alignItems:"center"}}>
@@ -74,7 +73,7 @@ function Query() {
         alt="The house from the offer."
         src={bms}
         />
-        <h4>Add Your Query to Our Admin</h4>
+        <h4>Add Your Query</h4>
 
         <form  onSubmit = {handleSubmit}>
         <Box sx={{display:"flex",flexDirection:"column",justifyContent:"center",gap:3}}>
