@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getToken } from './auth';
 import Box from '@mui/material/Box';
@@ -7,23 +7,34 @@ import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import StarIcon from '@mui/icons-material/Star';
+import Skeleton from '@mui/material/Skeleton';
 import NavBar from './NavBar';
+import { MyContext } from './Context';
 
 function Movies() {
-  const [movies, setMovies] = useState([]);
-
-  const getMovies = () => {
-    // Use relative path so the CRA dev server can proxy requests to the backend
-    fetch("/movies") 
-      .then((res) => res.json())
-      .then((data)=> {setMovies(data);console.log(data)})
-      .catch((err) => console.error("Error fetching movies:", err));
-  };
+  const { moviesCache, setMoviesCache } = useContext(MyContext);
+  const [movies, setMovies] = useState(moviesCache.data || []);
+  const [loading, setLoading] = useState(movies.length === 0);
+  const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
   useEffect(() => {
-    getMovies();
-  }, []); 
-  
+    if (moviesCache.data.length > 0 && Date.now() - moviesCache.fetchedAt < CACHE_TTL_MS) {
+      setMovies(moviesCache.data);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    fetch('/movies')
+      .then(res => res.json())
+      .then(data => {
+        setMovies(data);
+        setMoviesCache({ data, fetchedAt: Date.now() });
+      })
+      .catch(err => console.error('Error fetching movies:', err))
+      .finally(() => setLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const nowShowing = movies.filter((m) => m.active);
   const comingSoon = movies.filter((m) => !m.active);
 
@@ -38,7 +49,10 @@ function Movies() {
         </Box>
 
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4, justifyContent: 'flex-start', pb: 3 }}>
-          {nowShowing.map((movie) => (
+          {loading && Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+          {!loading && nowShowing.map((movie) => (
             <MovieCard key={movie.id} movie={movie} showBook />
           ))}
         </Box>
@@ -51,7 +65,10 @@ function Movies() {
         </Box>
 
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4, justifyContent: 'flex-start', pb: 4 }}>
-          {comingSoon.map((movie) => (
+          {loading && Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+          {!loading && comingSoon.map((movie) => (
             <MovieCard key={movie.id} movie={movie} showBook={false} />
           ))}
         </Box>
@@ -148,6 +165,23 @@ function MovieCard({ movie, showBook = true }) {
           )}
 
           <Box sx={{ fontSize: 12, color: '#666' }}>{movie.active ? 'Now Showing' : `Releases ${new Date(movie.releaseDate).toLocaleDateString()}`}</Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <Box sx={{ width: 250 }}>
+      <Skeleton variant="rectangular" width={250} height={360} sx={{ borderRadius: 2 }} />
+      <Box sx={{ p: 1.25 }}>
+        <Skeleton width="60%" height={24} />
+        <Skeleton width="80%" height={18} />
+        <Skeleton width="100%" height={46} />
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+          <Skeleton width={80} height={32} />
+          <Skeleton width={90} height={20} />
         </Box>
       </Box>
     </Box>

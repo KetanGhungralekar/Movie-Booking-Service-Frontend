@@ -104,7 +104,7 @@ function NavBar() {
                 <MenuItem sx={{display:'flex',flexDirection:{xs:'column'},gap:2}} onClick={handleCloseNavMenu}>
                 {/* Movies visible always */}
                 <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/bookmyshow/movies')}>Movies</Typography>
-                {token ?  <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/bookmyshow/movies/query')}>Queries</Typography> : null}
+                {token ?  <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/users/bookings')}>MyBookings</Typography> : null}
 
                 {
                   token ? null :  <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/users/signup')}>Signup</Typography>
@@ -158,7 +158,7 @@ function NavBar() {
               >
                 {/* Movies visible always */}
                 <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/bookmyshow/movies')}>Movies</Typography>
-                {token ?  <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/bookmyshow/movies/query')}>Queries</Typography> : null}
+                {token ?  <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/users/bookings')}>MyBookings</Typography> : null}
 
                 {
                   token ? null :  <Typography sx={{fontSize:"14px",fontWeight:500}} onClick={() => navigate('/users/signup')}>Signup</Typography>

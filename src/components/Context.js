@@ -6,6 +6,7 @@ export const MyContext = createContext();
 
 function AppContext({ children }) {
   const [user, setUser] = useState(null);
+  const [moviesCache, setMoviesCache] = useState({ data: [], fetchedAt: 0 });
 
   useEffect(() => {
     const token = getToken();
@@ -23,7 +24,7 @@ function AppContext({ children }) {
   }, []);
 
   return (
-    <MyContext.Provider value={{ user, setUser }}>
+    <MyContext.Provider value={{ user, setUser, moviesCache, setMoviesCache }}>
       {children}
     </MyContext.Provider>
   );
