@@ -78,6 +78,7 @@ function SeatLayout() {
           console.warn('Could not load seat status', e)
         }
 
+
         console.log('SeatLayout initial load:', results)
       } catch (err) {
         console.warn('Could not load initial data for seat layout', err)
@@ -184,6 +185,8 @@ function SeatLayout() {
 
       setBookingLoading(false)
 
+      // Frontend does not keep pending booking guard; backend lock handles this
+
       const auditorium =
         show?.auditorium ??
         show?.auditoriumName ??
@@ -218,6 +221,7 @@ function SeatLayout() {
     }
   }
 
+
   const movieTitle = movie?.title ?? movie?.name ?? ''
   const movieGenre = movie?.genre ?? movie?.type ?? ''
   const movieDuration = movie?.duration ?? ''
@@ -250,6 +254,7 @@ function SeatLayout() {
             maxWidth: 1200
           }}
         >
+          
           <Box sx={{ width: '100%', maxWidth: 920 }}>
             <h3 style={{ textAlign: 'left', marginBottom: 6 }}>
               {movieTitle || 'Select seats'}

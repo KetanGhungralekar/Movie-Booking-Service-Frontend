@@ -9,6 +9,7 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 import Tooltip from "@mui/material/Tooltip";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import NavBar from "./NavBar";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -23,10 +24,11 @@ export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [polling, setPolling] = useState(false);
+  // No network polling; manual refresh only
   const [now, setNow] = useState(Date.now());
   const [createdMap, setCreatedMap] = useState({});
   const [showInfoMap, setShowInfoMap] = useState({}); // showId -> show details (with movieTitle etc.)
+  const [lastRefreshedAt, setLastRefreshedAt] = useState(null);
 
   const navigate = useNavigate();
 
@@ -81,6 +83,7 @@ export default function MyBookings() {
 
       setBookings(data);
       setLoading(false);
+      setLastRefreshedAt(Date.now());
     } catch (err) {
       console.error("ERROR FETCHING BOOKINGS", err);
       setError("Something went wrong while loading your bookings.");
@@ -93,21 +96,7 @@ export default function MyBookings() {
     loadBookings();
   }, [loadBookings]);
 
-  // Polling: auto-refresh while there are pending payments
-  useEffect(() => {
-    const hasPending = bookings.some((b) => b.status === "PENDING_PAYMENT");
-    if (!hasPending) {
-      setPolling(false);
-      return;
-    }
 
-    setPolling(true);
-    const interval = setInterval(() => {
-      loadBookings();
-    }, 10000); // every 10s
-
-    return () => clearInterval(interval);
-  }, [bookings, loadBookings]);
 
   // Tick every second for countdown display
   useEffect(() => {
@@ -235,6 +224,22 @@ export default function MyBookings() {
     }
   };
 
+  const goToPayment = (b) => {
+    const showInfo = showInfoMap[b.showId] || {};
+    const auditorium =
+      showInfo.auditorium || showInfo.auditoriumName || showInfo.theatre || showInfo.theatreName || '';
+    const labels = Array.isArray(b.seats) ? b.seats.map((s) => buildSeatLabel(s)) : [];
+    const selectedParam = encodeURIComponent(labels.join(','));
+    const totalParam = encodeURIComponent(b.totalAmount ?? 0);
+
+    navigate(
+      `/bookmyshow/payment/${encodeURIComponent(auditorium)}/${encodeURIComponent(
+        b.showId
+      )}/${selectedParam}/${totalParam}`,
+      { state: { labels, bookingId: b.id, booking: b } }
+    );
+  };
+
   const hasBookings = bookings && bookings.length > 0;
 
   // Derive a label for each seat: prefer label/row+number if backend provides; otherwise fallback to generic
@@ -278,11 +283,23 @@ export default function MyBookings() {
             <Typography variant="h5" sx={{ fontWeight: 700 }}>
               My Bookings
             </Typography>
-            {polling && (
-              <Typography sx={{ fontSize: 12, color: "#777" }}>
-                Auto-refreshing pending bookings…
-              </Typography>
-            )}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              {lastRefreshedAt && (
+                <Typography sx={{ fontSize: 12, color: "#777" }}>
+                  Last updated: {new Date(lastRefreshedAt).toLocaleTimeString()}
+                </Typography>
+              )}
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<RefreshIcon />}
+                onClick={() => loadBookings()}
+                disabled={loading}
+                sx={{ borderColor: '#b0bec5', color: '#37474f' }}
+              >
+                Refresh
+              </Button>
+            </Box>
           </Box>
 
           {loading ? (
@@ -480,6 +497,21 @@ export default function MyBookings() {
                                 gap: 1,
                               }}
                             >
+                              {b.status === "PENDING_PAYMENT" && secondsLeft(b.id) > 0 && (
+                                <Tooltip title="Continue to payment">
+                                  <Button
+                                    size="small"
+                                    variant="contained"
+                                    sx={{
+                                      backgroundColor: "#1976d2",
+                                      ":hover": { backgroundColor: "#115293" },
+                                    }}
+                                    onClick={() => goToPayment(b)}
+                                  >
+                                    Pay Now
+                                  </Button>
+                                </Tooltip>
+                              )}
                               <Button
                                 size="small"
                                 variant="outlined"
