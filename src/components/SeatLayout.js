@@ -7,7 +7,6 @@ import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
-import { getToken } from './auth';
 import Typography from '@mui/material/Typography'
 
 function SeatLayout() {
@@ -38,14 +37,7 @@ function SeatLayout() {
         const results = {}
 
         // 1) Show
-        const API = process.env.REACT_APP_API_URL;
-        const token = getToken(); 
-        const showRes = await fetch(`${API}/movies/shows/${showId}`, {
-          headers: {
-            "Authorization": token,
-            "Content-Type": "application/json"
-          }
-        });
+        const showRes = await fetch(`/movies/shows/${showId}`)
         if (showRes && showRes.ok) {
           const ct = showRes.headers.get('content-type') || ''
           if (ct.includes('application/json')) results.show = await showRes.json()
@@ -64,15 +56,7 @@ function SeatLayout() {
         const movieIdToFetch =
           id ?? results.show?.movieId ?? results.show?.movie_id ?? null
         if (movieIdToFetch) {
-          const API = process.env.REACT_APP_API_URL;
-          const token = getToken();
-          // add Authorization header
-          const movieRes = await fetch(`${API}/movies/${movieIdToFetch}`, {
-            headers: {
-              "Authorization": token,
-              "Content-Type": "application/json"
-            }
-          });
+          const movieRes = await fetch(`/movies/${movieIdToFetch}`)
           if (movieRes && movieRes.ok) {
             const ct2 = movieRes.headers.get('content-type') || ''
             if (ct2.includes('application/json')) results.movie = await movieRes.json()
@@ -85,14 +69,7 @@ function SeatLayout() {
 
         // 3) Seat status from booking-service
         try {
-          const API = process.env.REACT_APP_API_URL;
-          const token = getToken();
-          const statusRes = await fetch(`${API}/bookings/show/${showId}/seats/status`, {
-            headers: {
-              "Authorization": token,
-              "Content-Type": "application/json"
-            }
-          });
+          const statusRes = await fetch(`/bookings/show/${showId}/seats/status`)
           if (statusRes && statusRes.ok) {
             const ct3 = statusRes.headers.get('content-type') || ''
             if (ct3.includes('application/json')) {
@@ -221,15 +198,12 @@ function SeatLayout() {
         totalAmount: totalPrice,
         seats: seatsPayload
       }
-      const API = process.env.REACT_APP_API_URL;
-      const token = getToken();
-      const res = await fetch(`${API}/bookings/create`, {
+
+      const res = await fetch(`/bookings/create`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': token
-          // Authorization header (JWT) is assumed to be added globally or by browser;
-          // X-User-Email is added at the gateway side.
+          'Content-Type': 'application/json'
+          // Authorization token is handled globally; X-User-Email injected by gateway
         },
         body: JSON.stringify(payload)
       })
@@ -826,4 +800,3 @@ function SeatLayout() {
 }
 
 export default SeatLayout
-g
